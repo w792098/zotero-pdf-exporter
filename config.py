@@ -11,12 +11,16 @@ Zotero PDF 导出工具 - 配置文件
 # macOS 示例: r'/Users/你的用户名/Zotero'
 # Linux 示例: r'/home/你的用户名/Zotero'
 
-# Windows 用户 - 根据你的实际路径修改
 ZOTERO_DATA_PATH = r'D:\Zotero Data'
 
 # ==================== 输出目录 ====================
 # 导出后的 PDF 存放位置
 OUTPUT_DIR = r'E:\1 博士进程\1 进程推进（初步理解中）\0 临时\my_exported_pdfs'
+
+# ==================== 导出策略 ====================
+# 'by_collection' - 按 Zotero 集合（Collection）分类导出
+# 'all_flat'      - 全部平铺到一个文件夹
+EXPORT_STRATEGY = 'by_collection'
 
 # ==================== 导出模式 ====================
 # 'title' - 使用文献标题命名文件
@@ -28,3 +32,4 @@ EXPORT_MODE = 'title'
 # 2. 首次使用请先修改 ZOTERO_DATA_PATH 为你的 Zotero 数据目录
 # 3. 运行命令: python export_zotero_pdfs.py
 # 4. 需要 Python 3.6+ 环境
+# 5. 建议使用 'by_collection' 策略，可以保留 Zotero 中的分类
