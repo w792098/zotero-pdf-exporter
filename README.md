@@ -10,6 +10,70 @@
 
 ---
 
+## 工具起源
+
+> 这是一个从实际需求中诞生的工具。
+
+在学术研究过程中，我们通常会在 Zotero 中积累大量的 PDF 文献。随着文献数量增多，如何高效管理和导出这些文献成了一个实际问题：
+
+- 直接从 Zotero 导出文件时，文件名通常是原始的（如 `PDF.pdf`、`bing-compare.pdf`）
+- 虽然 Zotero 内部按集合（Collection）分类管理文献，但导出后会丢失分类信息
+- 他人无法直接使用你的 Zotero 数据
+
+因此，我开发了这个工具——帮助自己（也帮助他人）更方便地管理和导出 Zotero 文献。
+
+---
+
+## 版本演进
+
+### v1.0 - 基础版本
+最初的想法很简单：从 Zotero 提取所有 PDF 并用文献标题重命名。
+
+```
+输入: Zotero 数据库 + storage 目录
+输出: 一堆以标题命名的 PDF 文件
+```
+
+**问题**: 所有文件都平铺在一起，无法体现原有的分类逻辑。
+
+---
+
+### v1.5 - 分类导出
+改进了思路：从 Zotero 数据库中读取**集合（Collection）**信息，按集合分类导出。
+
+```
+输入: Zotero 数据库
+  ↓
+读取 collections 表 → 获取所有集合
+读取 itemAttachments 表 → 获取 PDF 附件
+读取 collectionItems 表 → 建立 PDF 与集合的映射
+  ↓
+输出: 按集合分类的文件夹
+```
+
+**效果**:
+```
+导出结果/
+├── 1 博士文献/     ← 来自 Zotero 集合
+├── 2 书籍/         ← 来自 Zotero 集合
+├── 3 思维类/       ← 来自 Zotero 集合
+└── 未分类/         ← 未在任何集合中的文献
+```
+
+---
+
+### v2.0 - 一键Exe
+
+为了让更多用户无门槛使用，将 Python 脚本打包成 **EXE 可执行文件**。
+
+```
+Python 脚本 + PyInstaller → 单文件 EXE
+```
+
+用户无需安装 Python，无需配置环境，**双击即可运行**。
+
+---
+
 ## 两种版本
 
 | 版本 | 说明 | 适用用户 |
@@ -126,15 +190,23 @@ EXPORT_STRATEGY = 'all_flat'
 # 克隆仓库
 git clone https://github.com/w792098/zotero-pdf-exporter.git
 
-# 安装依赖（可选，仅标准库）
-# 无需安装任何包
-
 # 运行
 python export_zotero_pdfs_standalone.py
 
 # 打包为 EXE
 pip install pyinstaller
 pyinstaller --onefile --windowed --name "ZoteroPDF导出工具" export_zotero_pdfs_standalone.py
+```
+
+### 技术原理
+
+```
+1. 连接 Zotero SQLite 数据库
+2. 读取 collections 表获取所有集合
+3. 读取 itemAttachments 表获取 PDF 附件
+4. 读取 collectionItems 表建立 item-collection 映射
+5. 遍历 storage 目录查找对应 PDF 文件
+6. 复制并按标题重命名到目标目录
 ```
 
 ---
@@ -145,9 +217,9 @@ pyinstaller --onefile --windowed --name "ZoteroPDF导出工具" export_zotero_pd
 zotero-pdf-exporter/
 ├── ZoteroPDF导出工具.exe    # EXE 版本（双击即用）
 ├── export_zotero_pdfs_standalone.py  # Python 源码
-├── config.py               # 配置文件（如需自定义）
-├── run.bat                 # 快速启动（Python 版）
-└── README.md               # 说明文档
+├── config.py               # 配置文件
+├── README.md               # 说明文档
+└── run.bat                 # 快速启动（Python 版）
 ```
 
 ---
