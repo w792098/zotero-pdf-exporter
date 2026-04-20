@@ -91,17 +91,18 @@ Python 脚本 + PyInstaller → 单文件 EXE
 
 ### 2. 配置
 
-首次运行会自动查找数据库，如果找不到，需要：
+程序会自动检测 Zotero 数据目录，**大多数情况下无需手动配置**。
 
-1. 在同目录下创建 `config.py` 文件
-2. 内容如下（根据你的实际情况修改路径）：
+如果自动检测失败，在同目录下创建 `config.py` 文件：
 
 ```python
 # config.py
-ZOTERO_DATA_PATH = r'D:\Zotero Data'
-OUTPUT_DIR = r'E:\导出文件夹'
+ZOTERO_DATA_PATH = r'C:\Users\你的用户名\AppData\Roaming\Zotero\Profiles\xxx.default\zotero'
+OUTPUT_DIR = r'C:\Users\你的用户名\Desktop\My Exported PDFs'
 EXPORT_STRATEGY = 'by_collection'
 ```
+
+> 💡 可参考 `config.example.py` 文件中的说明
 
 ### 3. 运行
 
@@ -151,10 +152,17 @@ EXPORT_STRATEGY = 'all_flat'
 
 ## 配置说明
 
+程序会自动检测以下 Zotero 常见位置：
+
+- `%APPDATA%\Zotero\Profiles\*.default\zotero`
+- `%LOCALAPPDATA%\Zotero\Zotero\Profiles\*.default\zotero`
+
+如需自定义，可创建 `config.py`：
+
 | 配置项 | 说明 | 示例 |
 |--------|------|------|
-| `ZOTERO_DATA_PATH` | Zotero 数据目录 | `D:\Zotero Data` |
-| `OUTPUT_DIR` | 导出输出目录 | `E:\my_pdfs` |
+| `ZOTERO_DATA_PATH` | Zotero 数据目录（可选，自动检测） | 留空自动检测 |
+| `OUTPUT_DIR` | 导出输出目录（默认桌面） | `C:\Users\You\Desktop\My PDFs` |
 | `EXPORT_STRATEGY` | `by_collection` 或 `all_flat` | 按集合分类 |
 | `EXPORT_MODE` | `title` 或 `key` | 标题命名 |
 
