@@ -2,6 +2,30 @@
 
 从 Zotero 按集合分类导出 PDF 文件的工具。
 
+## 版本升级历史
+
+### v2.1 (2024-当前) - 自动检测增强版
+- 支持从 Windows 注册表自动检测 Zotero 路径
+- 智能搜索多版本 Zotero (Zotero 6+ Profiles 结构)
+- 优先使用配置文件，如无则自动检测
+- 修复变量作用域问题
+- 默认导出到桌面 `Zotero_PDF_Export` 文件夹
+
+### v2.0 (2024) - 一键 Exe 版
+- 打包成 EXE 可执行文件，双击即可运行
+- 无需安装 Python 环境
+- 支持 Windows/macOS/Linux
+
+### v1.5 (2024) - 分类导出版
+- 按集合分类导出，保留 Zotero 原有的分类逻辑
+- 支持未分类文献单独导出
+
+### v1.0 (2024) - 基础版
+- 从 Zotero 提取 PDF 并用标题重命名
+- 平铺导出到单一目录
+
+---
+
 ## 版本说明
 
 ### 🎯 EXE 版本（推荐）
@@ -13,6 +37,7 @@
 - 位置: 根目录
 - 文件:
   - `export_zotero_pdfs.py` - 主程序
+  - `export_zotero_pdfs_standalone.py` - 独立版（推荐）
   - `config.py` - 配置文件
   - `run.bat` - 快速启动脚本
 - 需要 Python 3.x 环境
@@ -38,6 +63,7 @@ EXPORT_STRATEGY = 'by_collection'      # 按集合分类
 - ✅ 智能文件名清理
 - ✅ 支持 Windows/macOS/Linux
 - ✅ 静默模式（双击即用）
+- ✅ 自动检测 Zotero 数据目录
 
 ## 注意事项
 - 运行前请先关闭 Zotero（数据库锁定）
