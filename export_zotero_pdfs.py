@@ -8,13 +8,93 @@ Zotero PDF 导出工具 - 按集合分类导出
 """
 
 import os
+import sys
 import sqlite3
 import shutil
 import re
 from pathlib import Path
 
-# 导入配置
-from config import ZOTERO_DATA_PATH, OUTPUT_DIR, EXPORT_MODE, EXPORT_STRATEGY
+# 动态导入配置
+def load_config():
+    """动态加载配置，支持EXE和Python两种模式"""
+    # 默认配置
+    default_config = {
+        'ZOTERO_DATA_PATH': r'D:\Zotero Data',
+        'OUTPUT_DIR': os.path.join(os.path.expanduser('~'), 'Desktop', 'Zotero_PDF_Export'),
+        'EXPORT_STRATEGY': 'by_collection',
+        'EXPORT_MODE': 'title'
+    }
+
+    # 尝试从config模块导入
+    try:
+        from config import ZOTERO_DATA_PATH, OUTPUT_DIR, EXPORT_MODE, EXPORT_STRATEGY
+        return {
+            'ZOTERO_DATA_PATH': ZOTERO_DATA_PATH,
+            'OUTPUT_DIR': OUTPUT_DIR,
+            'EXPORT_MODE': EXPORT_MODE,
+            'EXPORT_STRATEGY': EXPORT_STRATEGY
+        }
+    except ImportError:
+        # 如果在PyInstaller EXE中，尝试从EXE所在目录加载
+        if getattr(sys, 'frozen', False):
+            exe_dir = os.path.dirname(sys.executable)
+            config_path = os.path.join(exe_dir, '_internal', 'config.py')
+            if os.path.exists(config_path):
+                sys.path.insert(0, os.path.join(exe_dir, '_internal'))
+                try:
+                    from config import ZOTERO_DATA_PATH, OUTPUT_DIR, EXPORT_MODE, EXPORT_STRATEGY
+                    return {
+                        'ZOTERO_DATA_PATH': ZOTERO_DATA_PATH,
+                        'OUTPUT_DIR': OUTPUT_DIR,
+                        'EXPORT_MODE': EXPORT_MODE,
+                        'EXPORT_STRATEGY': EXPORT_STRATEGY
+                    }
+                except:
+                    pass
+
+        # 无法找到配置文件，使用自动检测
+        print("[配置] 未找到config.py，将使用自动检测")
+        zotero_path = auto_detect_zotero_path()
+        if zotero_path:
+            default_config['ZOTERO_DATA_PATH'] = zotero_path
+        return default_config
+
+def auto_detect_zotero_path():
+    """自动检测Zotero数据目录"""
+    # 常见路径
+    common_paths = [
+        os.path.expanduser(r'~\Zotero'),
+        r'D:\Zotero Data',
+        r'D:\Zotero',
+        os.path.expanduser(r'~/.local/share/zotero'),
+    ]
+
+    for path in common_paths:
+        if os.path.exists(path):
+            sqlite_path = os.path.join(path, 'zotero.sqlite')
+            if os.path.exists(sqlite_path):
+                print(f"[自动检测] 找到Zotero数据目录: {path}")
+                return path
+
+    # 尝试从注册表检测(Windows)
+    try:
+        import winreg
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Zotero')
+        path, _ = winreg.QueryValueEx(key, 'dataDir')
+        if os.path.exists(path):
+            winreg.CloseKey(key)
+            return path
+    except:
+        pass
+
+    return None
+
+# 加载配置
+config = load_config()
+ZOTERO_DATA_PATH = config['ZOTERO_DATA_PATH']
+OUTPUT_DIR = config['OUTPUT_DIR']
+EXPORT_MODE = config['EXPORT_MODE']
+EXPORT_STRATEGY = config['EXPORT_STRATEGY']
 
 
 def find_zotero_db():
@@ -131,7 +211,7 @@ def clean_filename(title, item_id):
     if not title or title.strip() == '':
         title = f'untitled_{item_id}'
 
-    safe = re.sub(r'[<>:"|?*\\/\x00-\x1f]', '', title)
+    safe = re.sub(r'[<>:""|?*\\/\\x00-\\x1f]', '', title)
     safe = safe.strip()
     safe = re.sub(r'\s+', ' ', safe)
 
